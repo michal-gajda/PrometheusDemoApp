@@ -1,0 +1,29 @@
+version: "3.8"
+networks:
+  localdev:
+volumes:
+  prometheus-data:
+    external: true
+services:
+  demoapp:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    container_name: "demoapp"
+    ports:
+      - "5000:80"
+    networks:
+      - localdev
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: "prometheus"
+    ports:
+      - "996:996"
+      - "5090:9090"
+    volumes:
+      - prometheus-data:/data
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - localdev
+    restart: unless-stopped
