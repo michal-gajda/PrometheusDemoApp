@@ -2,6 +2,8 @@ version: "3.8"
 networks:
   localdev:
 volumes:
+  grafana-data:
+    external: true
   prometheus-data:
     external: true
 services:
@@ -24,6 +26,22 @@ services:
     volumes:
       - prometheus-data:/data
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - localdev
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:latest
+    container_name: "grafana"
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SMTP_ENABLED=false
+    volumes:
+      - prometheus-data:/var/lib/grafana
+    links:
+      - prometheus:prometheus
     networks:
       - localdev
     restart: unless-stopped
